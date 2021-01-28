@@ -1,0 +1,61 @@
+[如何优雅的转换Bean对象](https://www.cnblogs.com/rjzheng/p/13624521.html)
+<br>MapStruct教程：
+1. 用法
+<br>引入pom文件
+```$xslt
+<dependency>
+    <groupId>org.mapstruct</groupId>
+    <!-- jdk8以下就使用mapstruct -->
+    <artifactId>mapstruct-jdk8</artifactId>
+    <version>1.2.0.Final</version>
+</dependency>
+<dependency>
+    <groupId>org.mapstruct</groupId>
+    <artifactId>mapstruct-processor</artifactId>
+    <version>1.2.0.Final</version>
+</dependency>
+```
+<br>准备两个实体类，一个是CarPo,还有一个是CarVo；用了lombok插件。
+```java
+@Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+public class CarPo {
+    private Integer id;
+    private String brand;
+}
+
+@Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+public class CarVo {
+    private Integer id;
+    private String brand;
+}
+```
+写一个转换接口
+```java
+@Mapper
+public interface CarCovertBasic {
+    CarCovertBasic INSTANCE = 
+    Mappers.getMapper(CarCovertBasic.class);
+    
+    CarVo toConvertVo(CarPo source);
+}
+```
+测试代码如下:
+```
+//实际中从数据库取
+CarPo carPo = CarPo.builder().id(1)
+                           .brand("BMW")
+                           .build();
+CarVo carVo = CarCovertBasic.INSTANCE.toConvertVo(carPo);
+System.out.println(carVo);
+```
+2. 原理：其实原理就是MapStruct插件会识别我们的接口，生成一个实现类，在实现类中，为我们实现了set逻辑
+3. 优势
+   * 两个类型属性不一致
+   * 集合类型转换
+   * 类型不一致
